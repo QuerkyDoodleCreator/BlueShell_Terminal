@@ -32,3 +32,4 @@ sys clear --u - Updates OS
 ```
 
 
+For business purposes, email: ferreirakonstantin@gmail.com
