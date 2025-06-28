@@ -5,6 +5,8 @@ OSversion="1.0.1" # Specifies version of terminal
 
 def loadOS(): # Loads the terminal - initial start-up
 	print("Welcome to BlueShell Terminal")
+	print(" BluShell Terminal Copyright (C) 2025 QuerkyDoodleCreator \nThis program comes with ABSOLUTELY NO WARRANTY; for details see GitHub Repository. \nThis is free software, and you are welcome to redistribute it\nunder certain conditions; see GitHub Repository for details. \n[https://github.com/QuerkyDoodleCreator/BlueShell_Terminal/blob/main/LICENSE]")
+    
 	info=input("Would you like a list of every current command? [Y/N] ")
 	if info.lower()=="y":
 		print(f"BlueShell Terminal Version {OSversion}")
