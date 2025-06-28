@@ -11,10 +11,10 @@ def loadOS(): # Loads the terminal - initial start-up
 	if info.lower()=="y":
 		print(f"BlueShell Terminal Version {OSversion}")
 		print("help - returns a list of every command")
-		print("sys version - Returns OS version")
-		print("sys clear --r - Reboots OS")
-		print("sys clear --s - Turns off OS")
-		print("sys clear --u - Updates OS")
+		print("sys version - Returns Terminal version")
+		print("sys clear --r - Reboots Terminal")
+		print("sys clear --s - Turns off Terminal")
+		print("sys clear --u - Updates Terminal")
 	elif info.lower()=="n":
 		print("")
 	else:
@@ -27,12 +27,12 @@ def runOS(): # Runs the terminal - fully operational from here on out
 	while True:
 		command=input(f"{commlineName}$blueshell-terminal: ")
 		if command=="help":
-			print(f"BlueShell terminal Version {OSversion}")
+			print(f"BlueShell Terminal Version {OSversion}")
 			print("help - returns a list of every command")
-			print("sys version - Returns OS version")
-			print("sys clear --r - Reboots OS")
-			print("sys clear --s - Turns off OS")
-			print("sys clear --u - Updates OS")
+			print("sys version - Returns Terminal version")
+			print("sys clear --r - Reboots Terminal")
+			print("sys clear --s - Turns off Terminal")
+			print("sys clear --u - Updates Terminal")
 		elif command=="sys version":
 			print(f"System Version: {OSversion}")
 		elif command=="sys clear --r":
