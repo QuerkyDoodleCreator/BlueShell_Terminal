@@ -7,6 +7,10 @@ import platform
 import subprocess
 import urllib.request
 
+VERSION_CHECK_URL = "https://raw.githubusercontent.com/QuerkyDoodleCreator/BlueShell_Terminal/main/version.txt"
+SCRIPT_URL = "https://raw.githubusercontent.com/QuerkyDoodleCreator/BlueShell_Terminal/main/main.py"
+
+
 if os.name == "nt":
 	os.system("")
 
@@ -22,21 +26,31 @@ RESET = "\033[0m"
 BOLD = "\033[1m"
 
 def reloadOS():
-	print(f"{YELLOW}Checking for updates on GitHub...{RESET}")
-	time.sleep(1)
-
-	# URL to raw GitHub file
-	download_url = "https://raw.githubusercontent.com/QuerkyDoodleCreator/BlueShell_Terminal/refs/heads/main/directories.py"
-	file_name = os.path.basename(__file__)  # The current file name
-
+	print(f"{YELLOW}Checking for updates...{RESET}")
 	try:
-		# Download latest version of the script
-		urllib.request.urlretrieve(download_url, file_name)
-		print(f"{GREEN}Update successful! Rebooting...{RESET}")
-		time.sleep(2)
-		os.execv(sys.executable, ['python'] + sys.argv)  # Restart script
+		with urllib.request.urlopen(VERSION_CHECK_URL) as response:
+			latest_version = response.read().decode().strip()
 	except Exception as e:
-		print(f"{RED}Update failed: {e}{RESET}")
+		print(f"{RED}Failed to check version: {e}{RESET}")
+		return
+
+	if latest_version != OSversion:
+		print(f"{CYAN}Update available: {latest_version} (You have {OSversion}){RESET}")
+		choice = input(f"{YELLOW}Do you want to update to version {latest_version}? [Y/N]: {RESET}").strip().lower()
+		if choice.lower() == "y":
+			print(f"{YELLOW}Downloading update...{RESET}")
+			try:
+				file_name = os.path.basename(__file__)
+				urllib.request.urlretrieve(SCRIPT_URL, file_name)
+				print(f"{GREEN}Update successful! Rebooting...{RESET}")
+				time.sleep(2)
+				os.execv(sys.executable, ['python'] + sys.argv)
+			except Exception as e:
+				print(f"{RED}Update failed: {e}{RESET}")
+		else:
+			print(f"{YELLOW}Update cancelled. Staying on version {OSversion}.{RESET}")
+	else:
+		print(f"{GREEN}You're already on the latest version ({OSversion})!{RESET}")
 
 def loadOS(): # Loads the terminal - initial start-up
 	print(f"{BLUE}Welcome to BlueShellOS {RESET}")
@@ -183,3 +197,4 @@ def runOS():  # Runs the terminal - fully operational from here on out
 # Final Step - Run the OS
 loadOS()
 runOS()
+
