@@ -1,5 +1,3 @@
-# PROPERTY OF QUERKYDOODLECREATOR
-
 import sys
 import time
 import random
@@ -28,7 +26,7 @@ def reloadOS():
 	time.sleep(1)
 
 	# URL to raw GitHub file
-	download_url = "https://raw.githubusercontent.com/QuerkyDoodleCreator/BlueShell_Terminal/main/BlueShellOS.py"
+	download_url = "https://raw.githubusercontent.com/QuerkyDoodleCreator/BlueShell_Terminal/refs/heads/main/directories.py"
 	file_name = os.path.basename(__file__)  # The current file name
 
 	try:
@@ -179,3 +177,9 @@ def runOS():  # Runs the terminal - fully operational from here on out
 
 		else:
 			print(f"{RED}Error!{RESET} Command '{command}' doesn't exist.")
+			
+			
+			
+# Final Step - Run the OS
+loadOS()
+runOS()
