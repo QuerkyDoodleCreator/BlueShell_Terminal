@@ -1,3 +1,5 @@
+# PROPERTY OF QUERKYDOODLECREATOR
+
 import sys
 import time
 import random
