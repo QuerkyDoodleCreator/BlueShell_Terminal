@@ -14,7 +14,7 @@ SCRIPT_URL = "https://raw.githubusercontent.com/QuerkyDoodleCreator/BlueShell_Te
 if os.name == "nt":
 	os.system("")
 
-OSversion = "1.0.3"
+OSversion = "1.0.4"
 RED = "\033[91m"
 GREEN = "\033[92m"
 YELLOW = "\033[93m"
