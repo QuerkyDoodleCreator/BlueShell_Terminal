@@ -1,3 +1,5 @@
+# UPDATING WORKS! :)
+
 import sys
 import time
 import random
