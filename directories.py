@@ -4,8 +4,13 @@ import random
 import datetime
 import os
 import platform
+import subprocess
+import urllib.request
 
-OSversion = "1.0.2"
+if os.name == "nt":
+	os.system("")
+
+OSversion = "1.0.3"
 RED = "\033[91m"
 GREEN = "\033[92m"
 YELLOW = "\033[93m"
@@ -17,20 +22,42 @@ RESET = "\033[0m"
 BOLD = "\033[1m"
 
 def reloadOS():
-	time.sleep(5)
-	print(f"{YELLOW}Gathering appropriet files from https://github.com/QuerkyDoodleCreator/BlueShell_Terminal...{RESET}")
+	print(f"{YELLOW}Checking for updates on GitHub...{RESET}")
 	time.sleep(1)
-	print(f"{GREEN}Done{RESET}")
-	time.sleep(9)
-	print(f"{YELLOW}Removing bloatware...{RESET}")
-	time.sleep(1)
-	print(f"{GREEN}Done{RESET}")
+
+	# URL to raw GitHub file
+	download_url = "https://raw.githubusercontent.com/QuerkyDoodleCreator/BlueShell_Terminal/main/BlueShellOS.py"
+	file_name = os.path.basename(__file__)  # The current file name
+
+	try:
+		# Download latest version of the script
+		urllib.request.urlretrieve(download_url, file_name)
+		print(f"{GREEN}Update successful! Rebooting...{RESET}")
+		time.sleep(2)
+		os.execv(sys.executable, ['python'] + sys.argv)  # Restart script
+	except Exception as e:
+		print(f"{RED}Update failed: {e}{RESET}")
 
 def loadOS(): # Loads the terminal - initial start-up
 	print(f"{BLUE}Welcome to BlueShellOS {RESET}")
 	info=input("Would you like a list of every current command? [Y/N] ")
 	if info.lower()=="y":
-		print(f"{MAGENTA}BlueShellOS Version {OSversion} \nhelp - Returns a list of every command \nsys version - Returns OS version \nsys clear --r - Reboots OS \nexit - Turns off OS \nsys clear --u - Updates OS \njoke tell - Tells a joke \ndate date - Returns the current date \ndate time - Returns the current time \ndate datetime - Returns the exact current date and time \nupdate log - Returns a list of every update ever made to the OS\n {RESET}")
+		print(f"{MAGENTA}BlueShellOS Version {OSversion}\n"
+              f"help - Returns a list of every command\n"
+              f"sys version - Returns OS version\n"
+              f"sys reboot - Reboots OS\n"
+              f"sys exit - Turns off OS\n"
+              f"sys update - Updates OS\n"
+              f"joke tell - Tells a joke\n"
+              f"date date - Returns the current date\n"
+              f"date time - Returns the current time\n"
+              f"date datetime - Returns full date/time\n"
+              f"update log - View changelog\n"
+              f"cd [dir] - Change directory\n"
+              f"ls - List directory contents\n"
+              f"mkdir [dir] - Create directory\n"
+              f"pwd - Show current directory\n"
+              f" {RESET}")
 		
 	elif info.lower()=="n":
 		print(" ")
@@ -38,73 +65,115 @@ def loadOS(): # Loads the terminal - initial start-up
 	else:
 		print("Invalid selection - assuming option 'N' was chosen.")
 		
-def runOS(): # Runs the terminal - fully operational from here on out
-	userName=input("Enter your name: ")
-	commlineName=userName.lower().split()[0]
+def runOS():  # Runs the terminal - fully operational from here on out
+	os.chdir(os.path.expanduser("~"))  # Set working directory to home
 	
 	while True:
-		command=input(f"{BOLD}{GREEN}{commlineName}@blueshell-terminal{RESET}:{BLUE}~ ${RESET} ") # Command Line!
-		if command=="help" or command=="?" or command =="h?":
-			print(f"{MAGENTA}BlueShellOS Version {OSversion} \nhelp - Returns a list of every command \nsys version - Returns OS version \nsys clear --r - Reboots OS \nexit - Turns off OS \nsys clear --u - Updates OS \njoke tell - Tells a joke \ndate date - Returns the current date \ndate time - Returns the current time \ndate datetime - Returns the exact current date and time \nupdate log - Returns a list of every update ever made to the OS\n {RESET}")
-			
-		elif command=="sys version":
+		cwd = os.getcwd()
+		command = input(f"{BOLD}{GREEN}{cwd}{RESET}{BOLD} >>> {RESET}").strip()
+
+		# Help Menu
+		if command in ["help", "?", "h?"]:
+			print(f"{MAGENTA}BlueShellOS Version {OSversion}\n"
+				  f"help - Returns a list of every command\n"
+				  f"sys version - Returns OS version\n"
+				  f"sys reboot - Reboots OS\n"
+				  f"sys exit - Turns off OS\n"
+				  f"sys update - Updates OS\n"
+				  f"joke tell - Tells a joke\n"
+				  f"date date - Returns the current date\n"
+				  f"date time - Returns the current time\n"
+				  f"date datetime - Returns full date/time\n"
+				  f"update log - View changelog\n"
+				  f"cd [dir] - Change directory\n"
+				  f"ls - List directory contents\n"
+				  f"mkdir [dir] - Create directory\n"
+				  f"pwd - Show current directory\n{RESET}")
+
+		elif command == "sys version":
 			print(f"System Version: {OSversion}")
-			
-		elif command=="sys clear --r":
-			print(" ")
-			print("--------------------------------------------------")
-			print(" ")
+
+		elif command == "sys reboot":
+			print("\n--------------------------------------------------\n")
 			print("REBOOTING OS...")
 			time.sleep(5)
-			print(" ")
-			print("Closing Software...")
+			print("\nClosing Software...")
 			time.sleep(3.7)
 			print("Done")
 			time.sleep(4.3)
-			print(" ")
-			print("OS REBOOTED SUCCESFULLY")
-			print(" ")
-			print("--------------------------------------------------")
-			print(" ")
-			
-		elif command=="exit":
-			print("OS shut down succesfully.")
+			print("\nOS REBOOTED SUCCESSFULLY\n")
+			print("--------------------------------------------------\n")
+
+		elif command == "sys exit":
+			print("OS shut down successfully.")
 			sys.exit(0)
-			
-		elif command=="sys clear --u":
-			print(" ")
-			print("--------------------------------------------------")
-			print(" ")
-			print("UPDATING OS")
-			print(" ")
+
+		elif command == "sys update":
+			print("\n--------------------------------------------------\n")
+			print("UPDATING OS\n")
 			reloadOS()
-			print(" ")
-			print("--------------------------------------------------")
-			print(" ")
-			print("You're up to date!")
-			
-		elif command=="joke tell":
-			jokes = ["Why did the bananas go to the doctor. It wasn’t peeling well.", "Why is 6 afraid of 7? Because 7 8 9.", "How do you make a tissue dance? Put a little boogie in it!", "What did the policeman say to his tummy? FREEZE! You’re under a vest.", "Where do snowmen keep their money? In a snowbank.", "What do you call a nosey pepper? Jalo-penyo business.", "Why didn’t the skeleton cross the road? He didn’t have the guts.", "What kind of medicine do you give to a pig with a skin rash? Oinkment.", "What do you call an alligator in a vest? An in-vest-igator!"]
-			joke = random.choice(jokes)
-			print(joke)
-			
-		elif command=="date date":
-			current_date = datetime.date.today()
-			print(f"The current date is {current_date}.")
-			
-		elif command=="date time":
-			current_datetime = datetime.datetime.now()
-			current_time = current_datetime.strftime("%H:%M:%S")
-			print(f"The current time is {current_time}.")
-			
-		elif command=="date datetime":
-			current_datetime = datetime.datetime.now()
-			print(f"The current date and time is {current_datetime}.")
-			
-		elif command=="update log":
-			# to add a log, insert a print() statement ABOVE all other print statements! Use this format: print(f"{MAGENTA}YYYY.MM.DD{RESET} - {BLUE}Update here{RESET}")
-			print(f"{MAGENTA}2025.07.28{RESET} - {BLUE}Terminal colours added, new commands created.{RESET}")
+			print("\nYou're up to date!\n")
+			print("--------------------------------------------------\n")
+
+		elif command == "joke tell":
+			jokes = [
+				"Why did the bananas go to the doctor? It wasn’t peeling well.",
+				"Why is 6 afraid of 7? Because 7 8 9.",
+				"How do you make a tissue dance? Put a little boogie in it!",
+				"What did the policeman say to his tummy? FREEZE! You’re under a vest.",
+				"Where do snowmen keep their money? In a snowbank.",
+				"What do you call a nosey pepper? Jalo-penyo business.",
+				"Why didn’t the skeleton cross the road? He didn’t have the guts.",
+				"What kind of medicine do you give to a pig with a skin rash? Oinkment.",
+				"What do you call an alligator in a vest? An in-vest-igator!"
+			]
+			print(random.choice(jokes))
+
+		elif command == "date date":
+			print(f"The current date is {datetime.date.today()}.")
+
+		elif command == "date time":
+			print(f"The current time is {datetime.datetime.now().strftime('%H:%M:%S')}.")
+
+		elif command == "date datetime":
+			print(f"The current date and time is {datetime.datetime.now()}.")
+
+		elif command == "update log":
+			print(f"{MAGENTA}2025.07.28b{RESET} - {BLUE}Automatic updates using GitHub rpo (must have secure Internet/Ethernet connection){RESET}")
+			print(f"{MAGENTA}2025.07.28a{RESET} - {BLUE}Directory commands added, terminal colours added{RESET}")
 			print(f"{MAGENTA}2025.07.27{RESET} - {BLUE}BlueShellOS created{RESET}")
-			
+
+		elif command.startswith("cd "):
+			path = command[3:].strip()
+			try:
+				os.chdir(path)
+			except FileNotFoundError:
+				print(f"{RED}No such directory: {path}{RESET}")
+			except NotADirectoryError:
+				print(f"{RED}Not a directory: {path}{RESET}")
+			except PermissionError:
+				print(f"{RED}Permission denied: {path}{RESET}")
+
+		elif command == "ls":
+			try:
+				files = os.listdir()
+				for f in files:
+					print(f)
+			except Exception as e:
+				print(f"{RED}Error listing directory: {e}{RESET}")
+
+		elif command.startswith("mkdir "):
+			new_dir = command[6:].strip()
+			try:
+				os.mkdir(new_dir)
+				print(f"{GREEN}Directory '{new_dir}' created successfully.{RESET}")
+			except FileExistsError:
+				print(f"{YELLOW}Directory already exists: {new_dir}{RESET}")
+			except Exception as e:
+				print(f"{RED}Error creating directory: {e}{RESET}")
+
+		elif command == "pwd":
+			print(os.getcwd())
+
 		else:
 			print(f"{RED}Error!{RESET} Command '{command}' doesn't exist.")
