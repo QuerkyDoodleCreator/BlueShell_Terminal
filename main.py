@@ -14,7 +14,7 @@ SCRIPT_URL = "https://raw.githubusercontent.com/QuerkyDoodleCreator/BlueShell_Te
 if os.name == "nt":
 	os.system("")
 
-OSversion = "1.0.5"
+OSversion = "1.0.6"
 RED = "\033[91m"
 GREEN = "\033[92m"
 YELLOW = "\033[93m"
@@ -80,6 +80,9 @@ def loadOS(): # Loads the terminal - initial start-up
               f"ls - List directory contents\n"
               f"mkdir [dir] - Create directory\n"
               f"pwd - Show current directory\n"
+              f"py [python code] - Run Python code\n"
+              f"python - Enter Python interpereter mode\n"
+              f"exit() - Exit Python interpereter mode\n"
               f" {RESET}")
 		
 	elif info.lower()=="n":
@@ -111,7 +114,11 @@ def runOS():  # Runs the terminal - fully operational from here on out
 				  f"cd [dir] - Change directory\n"
 				  f"ls - List directory contents\n"
 				  f"mkdir [dir] - Create directory\n"
-				  f"pwd - Show current directory\n{RESET}")
+				  f"pwd - Show current directory\n"
+				  f"py [python code] - Run Python code\n"
+				  f"python - Enter Python interpereter mode\n"
+				  f"exit() - Exit Python interpereter mode\n"
+				  f" {RESET}")
 
 		elif command == "sys version":
 			print(f"System Version: {OSversion}")
@@ -162,7 +169,8 @@ def runOS():  # Runs the terminal - fully operational from here on out
 			print(f"The current date and time is {datetime.datetime.now()}.")
 
 		elif command == "update log":
-			print(f"{MAGENTA}2025.07.28b{RESET} - {BLUE}Automatic updates using GitHub rpo (must have secure Internet/Ethernet connection){RESET}")
+			print(f"{MAGENTA}2025.07.29{RESET} - {BLUE}Terminal can now run Python 3.7.1 code{RESET}")
+			print(f"{MAGENTA}2025.07.28b{RESET} - {BLUE}Automatic updates using GitHub repo (must have secure Internet/Ethernet connection){RESET}")
 			print(f"{MAGENTA}2025.07.28a{RESET} - {BLUE}Directory commands added, terminal colours added{RESET}")
 			print(f"{MAGENTA}2025.07.27{RESET} - {BLUE}BlueShellOS created{RESET}")
 
@@ -197,9 +205,26 @@ def runOS():  # Runs the terminal - fully operational from here on out
 
 		elif command == "pwd":
 			print(os.getcwd())
+			
+		elif command == "python":
+			print(f"{CYAN}Entering Python interpreter mode. Type 'exit()' to return.{RESET}")
+			while True:
+				try:
+					code = input(">>> ")
+					if code.strip() == "exit()":
+						print(f"{CYAN}Exited Python mode.{RESET}")
+						break
+					try:
+						result = eval(code)
+						if result is not None:
+							print(result)
+					except SyntaxError:
+						exec(code)
+				except Exception as e:
+					print(f"{RED}Python Error: {e}{RESET}")
 
 		else:
-			print(f"{RED}Error!{RESET} Command '{command}' doesn't exist.")
+			print(f"{RED}Error!{RESET} Command '{command}' does not exist.")
 			
 			
 			
