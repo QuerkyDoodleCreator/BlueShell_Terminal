@@ -1,5 +1,3 @@
-# UPDATING WORKS! :)
-
 import sys
 import time
 import random
@@ -16,7 +14,7 @@ SCRIPT_URL = "https://raw.githubusercontent.com/QuerkyDoodleCreator/BlueShell_Te
 if os.name == "nt":
 	os.system("")
 
-OSversion = "1.0.4"
+OSversion = "1.0.5"
 RED = "\033[91m"
 GREEN = "\033[92m"
 YELLOW = "\033[93m"
@@ -39,11 +37,20 @@ def reloadOS():
 	if latest_version != OSversion:
 		print(f"{CYAN}Update available: {latest_version} (You have {OSversion}){RESET}")
 		choice = input(f"{YELLOW}Do you want to update to version {latest_version}? [Y/N]: {RESET}").strip().lower()
-		if choice.lower() == "y":
-			print(f"{YELLOW}Downloading update...{RESET}")
+		if choice == "y":
 			try:
-				file_name = os.path.basename(__file__)
-				urllib.request.urlretrieve(SCRIPT_URL, file_name)
+				# Identify file to overwrite
+				script_path = os.path.abspath(__file__)
+				print(f"{YELLOW}Downloading new version from GitHub...{RESET}")
+				print(f"{BLUE}Replacing current script: {script_path}{RESET}")
+
+				# Download from GitHub and overwrite
+				with urllib.request.urlopen(SCRIPT_URL) as response:
+					new_code = response.read()
+
+				with open(script_path, "wb") as f:
+					f.write(new_code)
+
 				print(f"{GREEN}Update successful! Rebooting...{RESET}")
 				time.sleep(2)
 				os.execv(sys.executable, ['python'] + sys.argv)
@@ -199,4 +206,3 @@ def runOS():  # Runs the terminal - fully operational from here on out
 # Final Step - Run the OS
 loadOS()
 runOS()
-
