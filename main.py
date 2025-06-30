@@ -14,7 +14,7 @@ SCRIPT_URL = "https://raw.githubusercontent.com/QuerkyDoodleCreator/BlueShell_Te
 if os.name == "nt":
 	os.system("")
 
-OSversion = "1.0.6"
+OSversion = "1.0.5"
 RED = "\033[91m"
 GREEN = "\033[92m"
 YELLOW = "\033[93m"
@@ -25,7 +25,41 @@ WHITE = "\033[97m"
 RESET = "\033[0m"
 BOLD = "\033[1m"
 
-def reloadOS():
+# --------------------------------- SPLIT ---------------------------------
+
+def rebootOS():
+	print(f"{YELLOW}Rebooting BlueShel Terminal in a new terminal...{RESET}")
+	time.sleep(1)
+
+	script_path = os.path.abspath(__file__)
+
+	try:
+		if os.name == "nt":
+			# Windows
+			subprocess.Popen(["start", "cmd", "/k", f"python \"{script_path}\""], shell=True)
+		elif sys.platform == "darwin":
+			# macOS
+			subprocess.Popen([
+				"osascript", "-e",
+				f'tell application "Terminal" to do script "python3 \\"{script_path}\\""'
+			])
+		else:
+			# Linux
+			try:
+				subprocess.Popen(["gnome-terminal", "--", "python3", script_path])
+			except FileNotFoundError:
+				subprocess.Popen(["x-terminal-emulator", "-e", f"python3 \"{script_path}\""])
+
+		print(f"{YELLOW}Closing old terminal...{RESET}")
+		time.sleep(1)
+		sys.exit(0)
+
+	except Exception as e:
+		print(f"{RED}Failed to reboot terminal: {e}{RESET}")
+
+# --------------------------------- SPLIT ---------------------------------
+
+def updateOS():
 	print(f"{YELLOW}Checking for updates...{RESET}")
 	try:
 		with urllib.request.urlopen(VERSION_CHECK_URL) as response:
@@ -39,21 +73,36 @@ def reloadOS():
 		choice = input(f"{YELLOW}Do you want to update to version {latest_version}? [Y/N]: {RESET}").strip().lower()
 		if choice == "y":
 			try:
-				# Identify file to overwrite
+				# Overwrite the current file
 				script_path = os.path.abspath(__file__)
-				print(f"{YELLOW}Downloading new version from GitHub...{RESET}")
-				print(f"{BLUE}Replacing current script: {script_path}{RESET}")
-
-				# Download from GitHub and overwrite
 				with urllib.request.urlopen(SCRIPT_URL) as response:
 					new_code = response.read()
-
 				with open(script_path, "wb") as f:
 					f.write(new_code)
 
-				print(f"{GREEN}Update successful! Rebooting...{RESET}")
+				print(f"{GREEN}Update successful! Launching new terminal...{RESET}")
 				time.sleep(2)
-				os.execv(sys.executable, ['python'] + sys.argv)
+
+				# Reboot in a NEW terminal window (platform-specific)
+				if os.name == "nt":
+					# Windows (uses start + python)
+					subprocess.Popen(["start", "cmd", "/k", f"python \"{script_path}\""], shell=True)
+				elif sys.platform == "darwin":
+					# macOS (uses AppleScript to open Terminal)
+					subprocess.Popen([
+						"osascript", "-e",
+						f'tell application "Terminal" to do script "python3 \\"{script_path}\\""'
+					])
+				else:
+					# Linux (tries gnome-terminal or x-terminal-emulator)
+					try:
+						subprocess.Popen(["gnome-terminal", "--", "python3", script_path])
+					except FileNotFoundError:
+						subprocess.Popen(["x-terminal-emulator", "-e", f"python3 \"{script_path}\""])
+
+				print(f"{YELLOW}Closing old terminal...{RESET}")
+				sys.exit(0)
+
 			except Exception as e:
 				print(f"{RED}Update failed: {e}{RESET}")
 		else:
@@ -61,16 +110,18 @@ def reloadOS():
 	else:
 		print(f"{GREEN}You're already on the latest version ({OSversion})!{RESET}")
 
+# --------------------------------- SPLIT ---------------------------------
+
 def loadOS(): # Loads the terminal - initial start-up
-	print(f"{BLUE}Welcome to BlueShellOS {RESET}")
+	print(f"{BLUE}Welcome to BlueShell Terminal {RESET}")
 	info=input("Would you like a list of every current command? [Y/N] ")
 	if info.lower()=="y":
-		print(f"{MAGENTA}BlueShellOS Version {OSversion}\n"
-              f"help - Returns a list of every command\n"
-              f"sys version - Returns OS version\n"
-              f"sys reboot - Reboots OS\n"
-              f"sys exit - Turns off OS\n"
-              f"sys update - Updates OS\n"
+		print(f"{CYAN}BlueShell Terminal Version {OSversion}{RESET}\n"
+              f"{MAGENTA}help - Returns a list of every command\n"
+              f"sys version - Returns Terminal version\n"
+              f"sys reboot - Reboots Terminal\n"
+              f"sys exit - Turns off Terminal\n"
+              f"sys update - Updates Terminal\n"
               f"joke tell - Tells a joke\n"
               f"date date - Returns the current date\n"
               f"date time - Returns the current time\n"
@@ -80,7 +131,6 @@ def loadOS(): # Loads the terminal - initial start-up
               f"ls - List directory contents\n"
               f"mkdir [dir] - Create directory\n"
               f"pwd - Show current directory\n"
-              f"py [python code] - Run Python code\n"
               f"python - Enter Python interpereter mode\n"
               f"exit() - Exit Python interpereter mode\n"
               f" {RESET}")
@@ -91,6 +141,8 @@ def loadOS(): # Loads the terminal - initial start-up
 	else:
 		print("Invalid selection - assuming option 'N' was chosen.")
 		
+# --------------------------------- SPLIT ---------------------------------
+		
 def runOS():  # Runs the terminal - fully operational from here on out
 	os.chdir(os.path.expanduser("~"))  # Set working directory to home
 	
@@ -100,9 +152,9 @@ def runOS():  # Runs the terminal - fully operational from here on out
 
 		# Help Menu
 		if command in ["help", "?", "h?"]:
-			print(f"{MAGENTA}BlueShellOS Version {OSversion}\n"
-				  f"help - Returns a list of every command\n"
-				  f"sys version - Returns OS version\n"
+			print(f"{CYAN}BlueShell Terminal Version {OSversion}{RESET}\n"
+				  f"{MAGENTA}help - Returns a list of every command\n"
+				  f"sys version - Returns Terminal version\n"
 				  f"sys reboot - Reboots OS\n"
 				  f"sys exit - Turns off OS\n"
 				  f"sys update - Updates OS\n"
@@ -115,33 +167,27 @@ def runOS():  # Runs the terminal - fully operational from here on out
 				  f"ls - List directory contents\n"
 				  f"mkdir [dir] - Create directory\n"
 				  f"pwd - Show current directory\n"
-				  f"py [python code] - Run Python code\n"
 				  f"python - Enter Python interpereter mode\n"
 				  f"exit() - Exit Python interpereter mode\n"
 				  f" {RESET}")
 
 		elif command == "sys version":
-			print(f"System Version: {OSversion}")
+			print(f"Terminal Version: {OSversion}")
 
 		elif command == "sys reboot":
 			print("\n--------------------------------------------------\n")
-			print("REBOOTING OS...")
-			time.sleep(5)
-			print("\nClosing Software...")
-			time.sleep(3.7)
-			print("Done")
-			time.sleep(4.3)
-			print("\nOS REBOOTED SUCCESSFULLY\n")
+			print("REBOOTING TERMINAL...")
+			rebootOS()
 			print("--------------------------------------------------\n")
 
 		elif command == "sys exit":
-			print("OS shut down successfully.")
+			print("Terminal shut down successfully.")
 			sys.exit(0)
 
 		elif command == "sys update":
 			print("\n--------------------------------------------------\n")
-			print("UPDATING OS\n")
-			reloadOS()
+			print("UPDATING TERMINAL\n")
+			updateOS()
 			print("\nYou're up to date!\n")
 			print("--------------------------------------------------\n")
 
@@ -226,7 +272,7 @@ def runOS():  # Runs the terminal - fully operational from here on out
 		else:
 			print(f"{RED}Error!{RESET} Command '{command}' does not exist.")
 			
-			
+# --------------------------------- SPLIT ---------------------------------
 			
 # Final Step - Run the OS
 loadOS()
