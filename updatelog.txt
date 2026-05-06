@@ -9,3 +9,4 @@
 
 [VERSION 1.1]
 1.1.0 - Added update log.
+1.1.1 - Fixed broken commands
