@@ -8,7 +8,7 @@ def show_update_log():
         with urllib.request.urlopen(UPDATELOG_URL, timeout=5) as response:
             log = response.read().decode()
 
-        print(f"{CYAN}\n--- Update Log ---{RESET}")
+        print(f"{CYAN}\n[UPDATE LOG]{RESET}")
         print(log)
 
     except Exception as e:
