@@ -5,6 +5,7 @@ import datetime
 import os
 import subprocess
 import urllib.request
+import platform
 
 VERSION_CHECK_URL = "https://raw.githubusercontent.com/QuerkyDoodleCreator/BlueShell_Terminal/main/version.txt"
 SCRIPT_URL = "https://raw.githubusercontent.com/QuerkyDoodleCreator/BlueShell_Terminal/main/main.py"
@@ -12,7 +13,7 @@ SCRIPT_URL = "https://raw.githubusercontent.com/QuerkyDoodleCreator/BlueShell_Te
 if os.name == "nt":
     os.system("")
 
-OSversion = "1.0.6"
+OSversion = "1.1.0"
 
 RED = "\033[91m"
 GREEN = "\033[92m"
@@ -20,202 +21,191 @@ YELLOW = "\033[93m"
 BLUE = "\033[94m"
 MAGENTA = "\033[95m"
 CYAN = "\033[96m"
-WHITE = "\033[97m"
 RESET = "\033[0m"
 BOLD = "\033[1m"
 
-# --------------------------------- LAUNCH ---------------------------------
+# ---------------- LAUNCH ----------------
 
 def launch_new_terminal(script_path):
     try:
         if os.name == "nt":
-            python_exe = sys.executable
-            subprocess.Popen(f'start "" "{python_exe}" "{script_path}"', shell=True)
+            subprocess.Popen(f'start "" "{sys.executable}" "{script_path}"', shell=True)
         elif sys.platform == "darwin":
             subprocess.Popen([
                 "osascript", "-e",
                 f'tell application "Terminal" to do script "{sys.executable} \\"{script_path}\\""'
             ])
         else:
-            try:
-                subprocess.Popen(["gnome-terminal", "--", sys.executable, script_path])
-            except FileNotFoundError:
-                subprocess.Popen(["x-terminal-emulator", "-e", f'{sys.executable} "{script_path}"'])
+            subprocess.Popen(["x-terminal-emulator", "-e", f'{sys.executable} "{script_path}"'])
     except Exception as e:
-        print(f"{RED}Failed to launch terminal: {e}{RESET}")
+        print(f"{RED}Launch failed: {e}{RESET}")
 
-# --------------------------------- REBOOT ---------------------------------
-
-def rebootOS():
-    print(f"{YELLOW}Rebooting BlueShell Terminal...{RESET}")
-    time.sleep(1)
-
-    script_path = os.path.abspath(__file__)
-    launch_new_terminal(script_path)
-
-    print(f"{YELLOW}Closing old terminal...{RESET}")
-    time.sleep(1)
-    sys.exit(0)
-
-# --------------------------------- UPDATE ---------------------------------
+# ---------------- UPDATE ----------------
 
 def updateOS():
     print(f"{YELLOW}Checking for updates...{RESET}")
     try:
-        with urllib.request.urlopen(VERSION_CHECK_URL) as response:
-            latest_version = response.read().decode().strip()
+        latest = urllib.request.urlopen(VERSION_CHECK_URL).read().decode().strip()
     except Exception as e:
-        print(f"{RED}Failed to check version: {e}{RESET}")
+        print(f"{RED}Failed: {e}{RESET}")
         return
 
-    if latest_version != OSversion:
-        print(f"{CYAN}Update available: {latest_version} (You have {OSversion}){RESET}")
-        choice = input(f"{YELLOW}Do you want to update? [Y/N]: {RESET}").strip().lower()
-
-        if choice == "y":
+    if latest != OSversion:
+        print(f"{CYAN}Update available: {latest}{RESET}")
+        if input("Update? [Y/N]: ").lower() == "y":
             try:
-                script_path = os.path.abspath(__file__)
-                temp_path = script_path + ".new"
+                path = os.path.abspath(__file__)
+                temp = path + ".new"
 
-                # Download new version
-                with urllib.request.urlopen(SCRIPT_URL) as response:
-                    new_code = response.read()
-
-                with open(temp_path, "wb") as f:
-                    f.write(new_code)
+                data = urllib.request.urlopen(SCRIPT_URL).read()
+                open(temp, "wb").write(data)
 
                 if os.name == "nt":
-                    # ---------- WINDOWS SAFE UPDATE ----------
-                    updater_path = script_path + ".updater.bat"
-
-                    with open(updater_path, "w") as f:
-                        f.write(f"""@echo off
+                    bat = path + ".updater.bat"
+                    open(bat, "w").write(f"""@echo off
 timeout /t 2 >nul
-move /Y "{temp_path}" "{script_path}"
-start "" "{sys.executable}" "{script_path}"
+move /Y "{temp}" "{path}"
+start "" "{sys.executable}" "{path}"
 del "%~f0"
 """)
-
-                    print(f"{GREEN}Update ready. Restarting...{RESET}")
-                    subprocess.Popen(["cmd", "/c", updater_path])
-                    sys.exit(0)
+                    subprocess.Popen(["cmd", "/c", bat])
+                    sys.exit()
 
                 else:
-                    # ---------- LINUX / MAC ----------
-                    os.replace(temp_path, script_path)
-
-                    print(f"{GREEN}Update successful! Restarting...{RESET}")
-                    time.sleep(1)
-
-                    launch_new_terminal(script_path)
-                    sys.exit(0)
+                    os.replace(temp, path)
+                    launch_new_terminal(path)
+                    sys.exit()
 
             except Exception as e:
                 print(f"{RED}Update failed: {e}{RESET}")
-        else:
-            print(f"{YELLOW}Update cancelled.{RESET}")
     else:
-        print(f"{GREEN}You're already on the latest version!{RESET}")
+        print(f"{GREEN}Up to date!{RESET}")
 
-# --------------------------------- LOAD ---------------------------------
+# ---------------- UTILITIES ----------------
 
-def loadOS():
-    print(f"{BLUE}Welcome to BlueShell Terminal{RESET}")
-    info = input("Would you like a list of every current command? [Y/N] ")
+def create_file(name):
+    try:
+        open(name, "a").close()
+        print(f"{GREEN}Created file: {name}{RESET}")
+    except Exception as e:
+        print(f"{RED}{e}{RESET}")
 
-    if info.lower() == "y":
-        print(f"{CYAN}BlueShell Terminal Version {OSversion}{RESET}\n"
-              f"{MAGENTA}help - Returns commands\n"
-              f"sys version - Terminal version\n"
-              f"sys reboot - Reboot\n"
-              f"sys exit - Exit\n"
-              f"sys update - Update\n"
-              f"joke tell - Joke\n"
-              f"date date/time/datetime\n"
-              f"cd / ls / mkdir / pwd\n"
-              f"python - Interpreter\n")
+def delete_file(name):
+    try:
+        os.remove(name)
+        print(f"{GREEN}Deleted file: {name}{RESET}")
+    except Exception as e:
+        print(f"{RED}{e}{RESET}")
 
-# --------------------------------- RUN ---------------------------------
+def read_file(name):
+    try:
+        with open(name, "r") as f:
+            print(f.read())
+    except Exception as e:
+        print(f"{RED}{e}{RESET}")
+
+def write_file(name):
+    try:
+        print("Enter text (type 'EOF' on new line to save):")
+        lines = []
+        while True:
+            line = input()
+            if line == "EOF":
+                break
+            lines.append(line)
+        with open(name, "w") as f:
+            f.write("\n".join(lines))
+        print(f"{GREEN}Saved to {name}{RESET}")
+    except Exception as e:
+        print(f"{RED}{e}{RESET}")
+
+# ---------------- MAIN LOOP ----------------
 
 def runOS():
     os.chdir(os.path.expanduser("~"))
 
     while True:
-        cwd = os.getcwd()
-        command = input(f"{BOLD}{GREEN}{cwd}{RESET}{BOLD} >>> {RESET}").strip()
+        cmd = input(f"{BOLD}{GREEN}{os.getcwd()}{RESET} >>> ").strip()
 
-        if command in ["help", "?", "h?"]:
-            loadOS()
+        if cmd in ["help", "?"]:
+            print(f"""
+help
+sys update / reboot / exit / info / pyver / pip update
+cd / ls / mkdir / pwd
+touch / rm / cat / write
+python
+""")
 
-        elif command == "sys version":
-            print(f"Terminal Version: {OSversion}")
+        elif cmd == "sys exit":
+            sys.exit()
 
-        elif command == "sys reboot":
-            rebootOS()
+        elif cmd == "sys reboot":
+            launch_new_terminal(os.path.abspath(__file__))
+            sys.exit()
 
-        elif command == "sys exit":
-            print("Terminal shut down successfully.")
-            sys.exit(0)
-
-        elif command == "sys update":
+        elif cmd == "sys update":
             updateOS()
 
-        elif command == "joke tell":
-            print(random.choice([
-                "Why did the bananas go to the doctor? It wasn’t peeling well.",
-                "Why is 6 afraid of 7? Because 7 8 9.",
-                "How do you make a tissue dance? Put a little boogie in it!"
-            ]))
+        elif cmd == "sys info":
+            print(f"""
+OS: {platform.system()} {platform.release()}
+Python: {platform.python_version()}
+Executable: {sys.executable}
+""")
 
-        elif command == "date date":
-            print(datetime.date.today())
+        elif cmd == "sys pyver":
+            print(platform.python_version())
 
-        elif command == "date time":
-            print(datetime.datetime.now().strftime('%H:%M:%S'))
+        elif cmd == "sys pip update":
+            subprocess.call([sys.executable, "-m", "pip", "install", "--upgrade", "pip"])
 
-        elif command == "date datetime":
-            print(datetime.datetime.now())
-
-        elif command.startswith("cd "):
+        elif cmd.startswith("cd "):
             try:
-                os.chdir(command[3:].strip())
+                os.chdir(cmd[3:])
             except Exception as e:
-                print(f"{RED}{e}{RESET}")
+                print(e)
 
-        elif command == "ls":
-            for f in os.listdir():
-                print(f)
+        elif cmd == "ls":
+            print("\n".join(os.listdir()))
 
-        elif command.startswith("mkdir "):
+        elif cmd.startswith("mkdir "):
             try:
-                os.mkdir(command[6:].strip())
-                print(f"{GREEN}Directory created.{RESET}")
+                os.mkdir(cmd[6:])
             except Exception as e:
-                print(f"{RED}{e}{RESET}")
+                print(e)
 
-        elif command == "pwd":
+        elif cmd == "pwd":
             print(os.getcwd())
 
-        elif command == "python":
-            print(f"{CYAN}Entering Python mode (exit() to leave){RESET}")
+        elif cmd.startswith("touch "):
+            create_file(cmd[6:])
+
+        elif cmd.startswith("rm "):
+            delete_file(cmd[3:])
+
+        elif cmd.startswith("cat "):
+            read_file(cmd[4:])
+
+        elif cmd.startswith("write "):
+            write_file(cmd[6:])
+
+        elif cmd == "python":
             while True:
+                code = input(">>> ")
+                if code == "exit()":
+                    break
                 try:
-                    code = input(">>> ")
-                    if code.strip() == "exit()":
-                        break
+                    print(eval(code))
+                except:
                     try:
-                        result = eval(code)
-                        if result is not None:
-                            print(result)
-                    except SyntaxError:
                         exec(code)
-                except Exception as e:
-                    print(f"{RED}{e}{RESET}")
+                    except Exception as e:
+                        print(e)
 
         else:
-            print(f"{RED}Command not found.{RESET}")
+            print(f"{RED}Unknown command{RESET}")
 
-# --------------------------------- START ---------------------------------
+# ---------------- START ----------------
 
-loadOS()
+print(f"{BLUE}BlueShell Terminal {OSversion}{RESET}")
 runOS()
