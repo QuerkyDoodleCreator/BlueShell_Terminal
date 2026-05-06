@@ -14,7 +14,7 @@ UPDATELOG_URL = "https://raw.githubusercontent.com/QuerkyDoodleCreator/BlueShell
 if os.name == "nt":
 	os.system("")
 
-OSversion = "1.1.0"
+OSversion = "1.1.1"
 
 RED = "\033[91m"
 GREEN = "\033[92m"
