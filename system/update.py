@@ -1,42 +1,55 @@
-import urllib.request, os, sys, subprocess
-from config import VERSION, VERSION_CHECK_URL, SCRIPT_URL
-from core.launcher import launch_new_terminal
+import os
+import sys
+import subprocess
+import shutil
+
 from utils.colors import *
+from core.launcher import launch_new_terminal
+
+REPO_URL = "https://github.com/QuerkyDoodleCreator/BlueShell_Terminal.git"
 
 def update_os():
-    print(f"{YELLOW}Checking for updates...{RESET}")
+    print(f"{YELLOW}Updating from GitHub...{RESET}")
+
     try:
-        latest = urllib.request.urlopen(VERSION_CHECK_URL, timeout=5).read().decode().strip()
+        current_dir = os.path.dirname(os.path.abspath(sys.argv[0]))
+        parent_dir = os.path.dirname(current_dir)
+        repo_name = "BlueShell_Terminal"
+        repo_path = os.path.join(parent_dir, repo_name)
+
+        # If .git exists → pull
+        if os.path.exists(os.path.join(current_dir, ".git")):
+            print(f"{CYAN}Existing repo detected. Pulling latest changes...{RESET}")
+            subprocess.check_call(["git", "-C", current_dir, "pull"])
+            print(f"{GREEN}Update complete!{RESET}")
+
+            launch_new_terminal(sys.argv[0])
+            sys.exit()
+
+        # Otherwise → fresh clone
+        else:
+            print(f"{CYAN}Cloning fresh copy...{RESET}")
+
+            temp_path = repo_path + "_new"
+
+            if os.path.exists(temp_path):
+                shutil.rmtree(temp_path)
+
+            subprocess.check_call(["git", "clone", REPO_URL, temp_path])
+
+            # Replace current directory
+            backup_path = current_dir + "_old"
+
+            if os.path.exists(backup_path):
+                shutil.rmtree(backup_path)
+
+            os.rename(current_dir, backup_path)
+            os.rename(temp_path, current_dir)
+
+            print(f"{GREEN}Update complete! Restarting...{RESET}")
+
+            launch_new_terminal(os.path.join(current_dir, "main.py"))
+            sys.exit()
+
     except Exception as e:
-        print(f"{RED}Failed: {e}{RESET}")
-        return
-
-    if latest != VERSION:
-        print(f"{CYAN}Update available: {latest}{RESET}")
-        if input("Update? [Y/N]: ").lower() == "y":
-            try:
-                path = os.path.abspath(sys.argv[0])
-                temp = path + ".new"
-
-                data = urllib.request.urlopen(SCRIPT_URL).read()
-                open(temp, "wb").write(data)
-
-                if os.name == "nt":
-                    bat = path + ".updater.bat"
-                    open(bat, "w").write(f"""@echo off
-timeout /t 2 >nul
-move /Y "{temp}" "{path}"
-start "" "{sys.executable}" "{path}"
-del "%~f0"
-""")
-                    subprocess.Popen(["cmd", "/c", bat])
-                    sys.exit()
-                else:
-                    os.replace(temp, path)
-                    launch_new_terminal(path)
-                    sys.exit()
-
-            except Exception as e:
-                print(f"{RED}Update failed: {e}{RESET}")
-    else:
-        print(f"{GREEN}Up to date!{RESET}")
+        print(f"{RED}Update failed: {e}{RESET}")
