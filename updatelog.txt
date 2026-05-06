@@ -1,1 +1,8 @@
-
+1.0.0 - released for public testing.
+1.0.1 - Minor bug fixes.
+1.0.2 - Minor bug fixes.
+1.0.3 - Minor bug fixes.
+1.0.4 - Added time commands.
+1.0.5 - Added joke commands.
+1.0.6 - Added directory commands.
+1.0.7 - Added update log.
